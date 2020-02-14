@@ -565,145 +565,146 @@ typedef enum {
 
 
 /**
- * An RtcPeerConnection instance allows an application to establish peer-to-peer
+ * @brief An RtcPeerConnection instance allows an application to establish peer-to-peer
  * communications with another RtcPeerConnection, or to another endpoint implementing
  * the required protocols
  *
- *  https://www.w3.org/TR/webrtc/#introduction
+ * Reference: https://www.w3.org/TR/webrtc/#introduction
  */
 typedef struct {
+    //!< Version of peer connection
     UINT32 version;
 } RtcPeerConnection, *PRtcPeerConnection;
 
-/*
- * RtcMediaStreamTrack represents a single track in a MediaStream
+/**
+ * @brief Represents a single track in a MediaStream
  *
- * https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
+ * Reference: https://www.w3.org/TR/mediacapture-streams/#mediastreamtrack
  */
 typedef struct {
-    RTC_CODEC codec;                            // non-standard, codec that this track is using
-    CHAR trackId[MAX_MEDIA_STREAM_ID_LEN + 1];  // non-standard, id of this individual track
-    CHAR streamId[MAX_MEDIA_STREAM_ID_LEN + 1]; // non-standard, id of the MediaStream this track belongs too
-    MEDIA_STREAM_TRACK_KIND kind;
+    RTC_CODEC codec; //!< non-standard, codec that the track is using
+    CHAR trackId[MAX_MEDIA_STREAM_ID_LEN + 1]; //!< non-standard, id of this individual track
+    CHAR streamId[MAX_MEDIA_STREAM_ID_LEN + 1]; //!< non-standard, id of the MediaStream this track belongs too
+    MEDIA_STREAM_TRACK_KIND kind; //!< Kind of track - audio or video
 } RtcMediaStreamTrack, *PRtcMediaStreamTrack;
 
-/* RTCRtpReceiver allows an application to inspect the
+/**
+ * @brief RTCRtpReceiver allows an application to inspect the
  * receipt of a MediaStreamTrack.
  *
- * Kvs extends this interface allowing users to receive
+ * NOTE: KVS extends this interface allowing users to receive
  * complete frames from the remote connection.
  *
- * https://www.w3.org/TR/webrtc/#rtcrtpreceiver-interface
+ * Reference: https://www.w3.org/TR/webrtc/#rtcrtpreceiver-interface
  */
 typedef struct {
-    RtcMediaStreamTrack track;
+    RtcMediaStreamTrack track; //!< Track with details of codec, trackId, streamId and track kind
 } RtcRtpReceiver, *PRtcRtpReceiver;
 
 /**
+ * @brief The RTCRtpTransceiver represents a combination of an RTCRtpSender
+ * and an RTCRtpReceiver that share a common mid.
  *
- * The RTCRtpTransceiver represents a combination of an RTCRtpSender and an RTCRtpReceiver
- * that share a common mid.
- *
- *  https://www.w3.org/TR/webrtc/#dom-rtcrtptransceiver
+ * Reference: https://www.w3.org/TR/webrtc/#dom-rtcrtptransceiver
  */
 typedef struct {
-    RTC_RTP_TRANSCEIVER_DIRECTION direction;
-    RtcRtpReceiver receiver;
+    RTC_RTP_TRANSCEIVER_DIRECTION direction; //!< Transceiver direction
+    RtcRtpReceiver receiver; //!< RtcRtpReceiver that has track specific information
 } RtcRtpTransceiver, *PRtcRtpTransceiver;
 
-/*
- * RtcIceServer is used to describe the STUN and TURN servers that
+/**
+ * @brief RtcIceServer is used to describe the STUN and TURN servers that
  * can be used by the ICE Agent to establish a connection with a peer.
  *
  * https://www.w3.org/TR/webrtc/#rtciceserver-dictionary
  */
 typedef struct {
-    CHAR urls[MAX_ICE_CONFIG_URI_LEN + 1];
-    CHAR username[MAX_ICE_CONFIG_USER_NAME_LEN + 1];
-    CHAR credential[MAX_ICE_CONFIG_CREDENTIAL_LEN + 1];
+    CHAR urls[MAX_ICE_CONFIG_URI_LEN + 1]; //!< URL of STUN/TURN Server
+    CHAR username[MAX_ICE_CONFIG_USER_NAME_LEN + 1]; //!< Username to be used with TURN server
+    CHAR credential[MAX_ICE_CONFIG_CREDENTIAL_LEN + 1]; //!< Password to be used with TURN server
 } RtcIceServer, *PRtcIceServer;
 
 /**
- *  KvsRtcConfiguration is a collection of non-standard extensions to RTCConfiguration
+ *  @brief KvsRtcConfiguration is a collection of non-standard extensions to RTCConfiguration
  *  these exist to serve use cases that currently aren't being served by the W3C standard
  *
- *  These options will be removed/modified as the WebRTC standard changes, and exist to unblock
+ *  NOTE: These options will be removed/modified as the WebRTC standard changes, and exist to unblock
  *  issues that we have today.
  */
 typedef struct {
-    // maximumTransmissionUnit (MTU) controls the size of the largest packet the WebRTC SDK will send
-    // Some networks may drop packets if they exceed a certain size, and is useful in those conditions.
-    // A smaller MTU will incur higher bandwidth usage however since more packets will be generated with smaller payloads
-    // If unset DEFAULT_MTU_SIZE will be used
+    //!< Controls the size of the largest packet the WebRTC SDK will send
+    //!< Some networks may drop packets if they exceed a certain size, and is useful in those conditions.
+    //!< A smaller MTU will incur higher bandwidth usage however since more packets will be generated with
+    //!< smaller payloads. If unset DEFAULT_MTU_SIZE will be used
     UINT16 maximumTransmissionUnit;
 
-    // iceLocalCandidateGatheringTimeout is the maximum time ice will wait for gathering STUN and RELAY candidates. Once
-    // it's reached, ice will proceed with whatever candidate it current has. Use default value if 0.
+    //!< Maximum time ice will wait for gathering STUN and RELAY candidates. Once
+    //!< it's reached, ice will proceed with whatever candidate it current has. Use default value if 0.
     UINT32 iceLocalCandidateGatheringTimeout;
 
-    // iceConnectionCheckTimeout is the maximum time allowed waiting for at least one ice candidate pair to receive
-    // binding response from the peer. Use default value if 0.
+    //!< Maximum time allowed waiting for at least one ice candidate pair to receive
+    //!< binding response from the peer. Use default value if 0.
     UINT32 iceConnectionCheckTimeout;
 
-    // If client is ice controlling, this is the timeout for receiving bind response of requests that has USE_CANDIDATE
-    // attribute. If client is ice controlled, this is the timeout for receiving binding request that has USE_CANDIDATE
-    // attribute after connection check is done. Use default value if 0.
+    //!< If client is ice controlling, this is the timeout for receiving bind response of requests that has USE_CANDIDATE
+    //!< attribute. If client is ice controlled, this is the timeout for receiving binding request that has USE_CANDIDATE
+    //!< attribute after connection check is done. Use default value if 0.
     UINT32 iceCandidateNominationTimeout;
 
-    // Ta in https://tools.ietf.org/html/rfc8445
-    // rate at which binding request packets are sent during connection check. Use default interval if 0.
+    //!< Ta in https://tools.ietf.org/html/rfc8445
+    //!< rate at which binding request packets are sent during connection check. Use default interval if 0.
     UINT32 iceConnectionCheckPollingInterval;
 
-    // generatedCertificateBits controls the amount of bits the locally generated self-signed certificate uses
-    // A smaller amount of bits may result in less CPU usage on startup, but will cause a weaker certificate to be generated
-    // If unset GENERATED_CERTIFICATE_BITS will be used
+    //!< GeneratedCertificateBits controls the amount of bits the locally generated self-signed certificate uses
+    //!< A smaller amount of bits may result in less CPU usage on startup, but will cause a weaker certificate to be generated
+    //!< If unset GENERATED_CERTIFICATE_BITS will be used
     INT32 generatedCertificateBits;
 
-    // generateRSACertificate controls if an ECDSA or RSA certificate is generated. By default we generate an ECDSA
-    // certificate but some platforms may not support them.
+    //!< GenerateRSACertificate controls if an ECDSA or RSA certificate is generated.
+    //!< By default we generate an ECDSA certificate but some platforms may not support them.
     BOOL generateRSACertificate;
 
-    // Socket send buffer len. Item larger then this size will get dropped. Use system default if 0.
-    UINT32 sendBufSize;
+    UINT32 sendBufSize; //!< Socket send buffer length. Item larger then this size will get dropped. Use system default if 0.
 
-    UINT64 filterCustomData;
-    IceSetInterfaceFilterFunc iceSetInterfaceFilterFunc;
+    UINT64 filterCustomData; //!< Custom Data that can be populated by the developer while developing filter function
+
+    IceSetInterfaceFilterFunc iceSetInterfaceFilterFunc; //!< Filter function callback to be set when the developer
+                                                         //!< would like to whitelist/blacklist specific network interfaces
 } KvsRtcConfiguration, *PKvsRtcConfiguration;
 
 /**
- *  The Configuration defines a set of parameters to configure how the peer-to-peer
+ *  @brief The Configuration defines a set of parameters to configure how the peer-to-peer
  *  communication established via RtcPeerConnection is established or re-established.
- *  https://www.w3.org/TR/webrtc/#rtcconfiguration-dictionary
+ *
+ *  Reference: https://www.w3.org/TR/webrtc/#rtcconfiguration-dictionary
  */
 typedef struct {
-    // Indicates which candidates the ICE Agent is allowed to use.
-    ICE_TRANSPORT_POLICY iceTransportPolicy;
-
-    // servers available to be used by ICE, such as STUN and TURN servers.
-    RtcIceServer iceServers[MAX_ICE_SERVERS_COUNT];
-
-    // non-standard configuration options
-    KvsRtcConfiguration kvsRtcConfiguration;
+    ICE_TRANSPORT_POLICY iceTransportPolicy; //!< Indicates which candidates the ICE Agent is allowed to use.
+    RtcIceServer iceServers[MAX_ICE_SERVERS_COUNT]; //!< Servers available to be used by ICE, such as STUN and TURN servers.
+    KvsRtcConfiguration kvsRtcConfiguration; //!< Non-standard configuration options
 } RtcConfiguration, *PRtcConfiguration;
 
-/*
- * SessionDescription is used by RtcPeerConnection to expose local
+/**
+ * @brief SessionDescription is used by RtcPeerConnection to expose local
  * and remote session descriptions.
  *
- * https://www.w3.org/TR/webrtc/#rtcsessiondescription-class
+ * Reference: https://www.w3.org/TR/webrtc/#rtcsessiondescription-class
  */
 typedef struct {
-    SDP_TYPE type;
-    CHAR     sdp[MAX_SESSION_DESCRIPTION_INIT_SDP_LEN + 1];
+    SDP_TYPE type; //!< Indicates an offer/anser SDP type
+    CHAR sdp[MAX_SESSION_DESCRIPTION_INIT_SDP_LEN + 1]; //!< SDP Data containing media capabilities, transport addresses
+                                                        //!< and related metadata in a transport agnostic manner
 } RtcSessionDescriptionInit, *PRtcSessionDescriptionInit;
 
-/*
- * Rtc ICE candidate interface.
+/**
+ * @brief Rtc ICE candidate interface.
  *
- * https://www.w3.org/TR/webrtc/#rtcicecandidate-interface
+ * Reference: https://www.w3.org/TR/webrtc/#rtcicecandidate-interface
  */
 typedef struct {
-    CHAR candidate[MAX_ICE_CANDIDATE_INIT_CANDIDATE_LEN + 1];
+
+    CHAR candidate[MAX_ICE_CANDIDATE_INIT_CANDIDATE_LEN + 1]; //!< Candidate information contaiing details such as protocol
+                                                              //!< (udp/tcp), IP Address, priority and port
 } RtcIceCandidateInit, *PRtcIceCandidateInit;
 
 /**
@@ -816,148 +817,109 @@ typedef enum {
 } SIGNALING_CHANNEL_ROLE_TYPE;
 
 /**
- * Signaling message structure
+ * @brief Structure defining the basic signaling message
  */
 typedef struct {
-    // Current version of the structure
-    UINT32 version;
+    UINT32 version; //!< Current version of the structure
 
-    // Message type
-    SIGNALING_MESSAGE_TYPE messageType;
+    SIGNALING_MESSAGE_TYPE messageType; //!< Type of signaling message.
 
-    // Correlation Id string
-    CHAR correlationId[MAX_CORRELATION_ID_LEN + 1];
+    CHAR correlationId[MAX_CORRELATION_ID_LEN + 1]; //!< Correlation Id string
 
-    // Sender client id
-    CHAR peerClientId[MAX_SIGNALING_CLIENT_ID_LEN + 1];
+    CHAR peerClientId[MAX_SIGNALING_CLIENT_ID_LEN + 1]; //!< Sender client id
 
-    // Payload length. Optional. Will calculate the length if 0
-    UINT32 payloadLen;
+    UINT32 payloadLen; //!< Optional payload length. If 0, the length will be calculated
 
-    // Payload
-    CHAR payload[MAX_SIGNALING_MESSAGE_LEN + 1];
+    CHAR payload[MAX_SIGNALING_MESSAGE_LEN + 1]; //!< Actual signaling message payload
 } SignalingMessage, *PSignalingMessage;
 
 /**
- * Received Signaling message structure
+ * @brief Structure defining the signaling message to be received
  */
 typedef struct {
-    // The signaling message
-    SignalingMessage signalingMessage;
+    SignalingMessage signalingMessage; //!< The signaling message with details such as message type, correlation ID,
+                                       //!< peer client ID and payload
 
-    // Response status code
-    SERVICE_CALL_RESULT statusCode;
+    SERVICE_CALL_RESULT statusCode; //!< Response status code
 
-    // Error type if any
-    CHAR errorType[MAX_ERROR_TYPE_STRING_LEN + 1];
+    CHAR errorType[MAX_ERROR_TYPE_STRING_LEN + 1]; //!< Error type of the signaling message
 
-    // Description if any
-    CHAR description[MAX_MESSAGE_DESCRIPTION_LEN + 1];
+    CHAR description[MAX_MESSAGE_DESCRIPTION_LEN + 1]; //!< Optional description of the message
 } ReceivedSignalingMessage, *PReceivedSignalingMessage;
 
 /**
- * Client info struct
+ * @brief Populate Signaling client with client ID and application log level
  */
 typedef struct {
-    // Version of the structure
-    UINT32 version;
-
-    // Client id to use
-    CHAR clientId[MAX_SIGNALING_CLIENT_ID_LEN + 1];
-
-    // Verbosity level for the logging. One of LOG_LEVEL_XXX values or the default verbosity will be assumed
-    UINT32 loggingLevel;
+    UINT32 version; //!< Version of the structure
+    CHAR clientId[MAX_SIGNALING_CLIENT_ID_LEN + 1]; //!< Client id to use. Defines if the client is a producer/consumer
+    UINT32 loggingLevel; //!< Verbosity level for the logging. One of LOG_LEVEL_XXX
+                         //!< values or the default verbosity will be assumed. Currently,
+                         //!< default value is LOG_LEVEL_WARNING
 } SignalingClientInfo, *PSignalingClientInfo;
 
 /**
- * Channel info struct
+ * @brief Contains all signaling channel related information
  */
 typedef struct {
-    // Version of the structure
-    UINT32 version;
+    UINT32 version; //!< Version of the structure
+    PCHAR pChannelName; //!< Name of the signaling channel name. Maximum length is defined by MAX_CHANNEL_NAME_LEN + 1
 
-    // Channel name
-    PCHAR pChannelName; // [MAX_CHANNEL_NAME_LEN + 1]
+    PCHAR pChannelArn; //!< Channel Amazon Resource Name (ARN). This is an optional parameter
+                       //!< Maximum length is defined by MAX_ARN_LEN+1
 
-    // Optional ARN.
-    PCHAR pChannelArn; // [MAX_ARN_LEN + 1];
+    PCHAR pRegion; //!< AWS Region in which the channel is to be opened. Can be empty for default
+                   //!< Maximum length is defined by MAX_REGION_NAME_LEN+1
 
-    // AWS Region. Empty for default
-    PCHAR pRegion; // [MAX_REGION_NAME_LEN + 1]
+    PCHAR pControlPlaneUrl; //!< Optional fully qualified control plane URL
+                            //!< Maximum length is defined by MAX_ARN_LEN+1
 
-    // Optional fully qualified control plane URI
-    PCHAR pControlPlaneUrl; // [MAX_URI_CHAR_LEN + 1]
+    PCHAR pCertPath; //!< Optional certificate path. Maximum length is defined by MAX_PATH_LEN+1
 
-    // Optional certificate path
-    PCHAR pCertPath; // [MAX_PATH_LEN + 1]
+    PCHAR pUserAgentPostfix; //!<Optional user agent post-fix. Maximum length is defined by
+                             //!< MAX_CUSTOM_USER_AGENT_NAME_POSTFIX_LEN+1
 
-    // Optional user agent post-fix
-    PCHAR pUserAgentPostfix; // [MAX_CUSTOM_USER_AGENT_NAME_POSTFIX_LEN + 1]
+    PCHAR pCustomUserAgent; //!< Optional custom user agent name. Maximum length is defined by MAX_USER_AGENT_LEN+1
 
-    // Optional custom user agent name
-    PCHAR pCustomUserAgent; // [MAX_CUSTOM_USER_AGENT_LEN + 1]
+    PCHAR pUserAgent; //!< Combined user agent.  Maximum length is defined by MAX_USER_AGENT_LEN+1
 
-    // Combined user agent
-    PCHAR pUserAgent; // [MAX_USER_AGENT_LEN + 1]
+    PCHAR pKmsKeyId; //!< Optional KMS key id ARN. Maximum length is defined by MAX_ARN_LEN+1
 
-    // Optional KMS key id ARN
-    PCHAR pKmsKeyId; // [MAX_ARN_LEN + 1]
+    SIGNALING_CHANNEL_TYPE channelType; //!< Channel type when creating.
 
-    // Channel type when creating
-    SIGNALING_CHANNEL_TYPE channelType;
+    SIGNALING_CHANNEL_ROLE_TYPE channelRoleType; //!< Channel role type for the endpoint - master/viewer
 
-    // Channel role type for the endpoint
-    SIGNALING_CHANNEL_ROLE_TYPE channelRoleType;
+    BOOL cachingEndpoint; //!< Flag determines if the endpoint is to be cached
 
-    // Whether to cache the endpoint
-    BOOL cachingEndpoint;
+    UINT64 endpointCachingPeriod; //!< Endpoint caching TTL
 
-    // Endpoint caching TTL
-    UINT64 endpointCachingPeriod;
+    BOOL retry; //!< Flag determines if a retry of the network calls is to be done on errors up to max retry times
 
-    // Whether to retry the network calls on errors up to max retry times
-    BOOL retry;
+    BOOL reconnect; //!< Flag determines if reconnection should be attempted on connection drop
 
-    // Whether to reconnect on connection dropped
-    BOOL reconnect;
+    UINT64 messageTtl; //!< The message TTL. Must be in the range of 5ns and 120ns.
+                       //!< Specifying zero will default to 60ns
 
-    // The message TTL. Must be 5 * HUNDREDS_OF_NANOS_IN_A_SECOND <= ttl <= 120 * HUNDREDS_OF_NANOS_IN_A_SECOND
-    // Specifying zero will default to 60 * HUNDREDS_OF_NANOS_IN_A_SECOND
-    UINT64 messageTtl;
+    UINT32 tagCount; //!< Number of tags associated with the stream
 
-    // Number of tags associated with the stream
-    UINT32 tagCount;
-
-    // Stream tags array
-    PTag pTags;
+    PTag pTags; //!< Stream tags array
 } ChannelInfo, *PChannelInfo;
 
 /**
- * ICE configuration information struct
+ * @brief ICE configuration information struct
  *
  * NOTE: Each ICE configuration has an array of ICE URIs.
  * The actual URI count is specified in uriCount member.
  *
- * NOTE:TTL is given in default - 100ns duration
+ * NOTE:TTL is given in default which is 100ns duration
  */
 typedef struct {
-    // Version of the struct
-    UINT32 version;
-
-    // TTL of the configuration in 100ns
-    UINT64 ttl;
-
-    // Number of Ice Uri objects
-    UINT32 uriCount;
-
-    // Ice server Uris
-    CHAR uris[MAX_ICE_CONFIG_URI_COUNT][MAX_ICE_CONFIG_URI_LEN + 1];
-
-    // Username for the server
-    CHAR userName[MAX_ICE_CONFIG_USER_NAME_LEN + 1];
-
-    // Password for the server
-    CHAR password[MAX_ICE_CONFIG_CREDENTIAL_LEN + 1];
+    UINT32 version; //!< Version of the struct
+    UINT64 ttl; //!< TTL of the configuration is 100ns
+    UINT32 uriCount; //!<  Number of Ice URI objects
+    CHAR uris[MAX_ICE_CONFIG_URI_COUNT][MAX_ICE_CONFIG_URI_LEN + 1]; //!< List of Ice server URIs
+    CHAR userName[MAX_ICE_CONFIG_USER_NAME_LEN + 1]; //!< Username for the server
+    CHAR password[MAX_ICE_CONFIG_CREDENTIAL_LEN + 1]; //!< Password for the server
 } IceConfigInfo, *PIceConfigInfo;
 
 /**
@@ -1006,85 +968,63 @@ typedef STATUS (*SignalingClientErrorReportFunc)(UINT64, STATUS, PCHAR, UINT32);
 typedef STATUS (*SignalingClientStateChangedFunc)(UINT64, SIGNALING_CLIENT_STATE);
 
 /**
- * Signaling client callbacks
+ * @brief Register Signaling client callbacks
  */
 typedef struct {
-    // Current version of the structure
-    UINT32 version;
-
-    // Custom data passed by the caller
-    UINT64 customData;
-
-    // SDP received callback
-    SignalingClientMessageReceivedFunc messageReceivedFn;
-
-    // Error reporting function - Optional
-    SignalingClientErrorReportFunc errorReportFn;
-
-    // Signaling client state change callback
-    SignalingClientStateChangedFunc stateChangeFn;
+    UINT32 version; //!< Current version of the structure
+    UINT64 customData; //!< Custom data passed by the caller
+    SignalingClientMessageReceivedFunc messageReceivedFn; //!< Callback registeration for received SDP
+    SignalingClientErrorReportFunc errorReportFn; //!<  Error reporting function. This is an optional member
+    SignalingClientStateChangedFunc stateChangeFn; //!< Signaling client state change callback
 } SignalingClientCallbacks, *PSignalingClientCallbacks;
 
 /**
- * Signaling channel description returned from the service
+ * @brief Signaling channel description returned from the service
  */
 typedef struct {
-    // Version of the struct
-    UINT32 version;
-
-    // Channel ARN
-    CHAR channelArn[MAX_ARN_LEN + 1];
-
-    // Channel name - human readable. Null terminated.
-    // Should be unique per AWS account.
-    CHAR channelName[MAX_CHANNEL_NAME_LEN + 1];
-
-    // Current channel status
-    SIGNALING_CHANNEL_STATUS channelStatus;
-
-    // Channel type
-    SIGNALING_CHANNEL_TYPE channelType;
-
-    // Update version.
-    CHAR updateVersion[MAX_UPDATE_VERSION_LEN + 1];
-
-    // Message TTL in 100ns
-    UINT64 messageTtl;
-
-    // Channel creation time
-    UINT64 creationTime;
+    UINT32 version; //!< Version of the struct
+    CHAR channelArn[MAX_ARN_LEN + 1]; //!< Channel ARN
+    CHAR channelName[MAX_CHANNEL_NAME_LEN + 1]; //!< Signaling channel name. Should be unique per AWS account
+    SIGNALING_CHANNEL_STATUS channelStatus; //!< Current channel status as reported by the service
+    SIGNALING_CHANNEL_TYPE channelType; //!< Channel type as reported by the service
+    CHAR updateVersion[MAX_UPDATE_VERSION_LEN + 1]; //!< Update version
+    UINT64 messageTtl; //!< Message TTL in 100ns
+    UINT64 creationTime;//!< Time when the channel gets created
 } SignalingChannelDescription, *PSignalingChannelDescription;
 
-/*
- * RtcRtpTransceiverInit is used to configure a transceiver when creating it
+/**
+ * @brief RtcRtpTransceiverInit is used to configure a transceiver when creating it
  *
- * https://www.w3.org/TR/webrtc/#dom-rtcrtptransceiverinit
+ * Reference: https://www.w3.org/TR/webrtc/#dom-rtcrtptransceiverinit
  */
 typedef struct {
-    RTC_RTP_TRANSCEIVER_DIRECTION direction;
+    RTC_RTP_TRANSCEIVER_DIRECTION direction; //!< Transceiver direction - SENDONLY, RECVONLY, SENDRECV
 } RtcRtpTransceiverInit, *PRtcRtpTransceiverInit;
 
-/*
- * RtcDataChannel represents a bi-directional data channel between two peers.
+/**
+ * @brief RtcDataChannel represents a bi-directional data channel between two peers.
  *
- * https://www.w3.org/TR/webrtc/#dom-rtcdatachannel
+ * Reference: https://www.w3.org/TR/webrtc/#dom-rtcdatachannel
  */
 typedef struct __RtcDataChannel {
-    CHAR name[MAX_DATA_CHANNEL_NAME_LEN + 1];
+    CHAR name[MAX_DATA_CHANNEL_NAME_LEN + 1]; //!< Define name of data channel. Max length is 256 characters
 } RtcDataChannel, *PRtcDataChannel;
 
-/*
- * RtcDataChannelInit dictionary used to configure properties of the
+/**
+ * @brief RtcDataChannelInit dictionary used to configure properties of the
  * underlying channel such as data reliability
  *
- * https://www.w3.org/TR/webrtc/#dom-rtcdatachannelinit
+ * Reference: https://www.w3.org/TR/webrtc/#dom-rtcdatachannelinit
  */
 typedef struct {
-    BOOL ordered;
-    UINT16 maxPacketLifeTime;
-    UINT16 maxRetransmits;
-    CHAR protocol[MAX_DATA_CHANNEL_PROTOCOL_LEN + 1];
-    BOOL negotiated;
+    BOOL ordered; //!< Decides the order in which data is sent. If true, data is sent in order
+    UINT16 maxPacketLifeTime; //!< Limits the time (in milliseconds) during which the channel will (re)transmit
+                              //!< data if not acknowledged. This value may be clamped if it exceeds the maximum
+                              //!< value supported by the user agent.
+    UINT16 maxRetransmits;    //!< Control number of times a channel retransmits data if not delivered successfully
+    CHAR protocol[MAX_DATA_CHANNEL_PROTOCOL_LEN + 1]; //!< Sub protocol name for the channel
+    BOOL negotiated; //!< If set to true, it is up to the application to negotiate the channel and create an
+                     //!< RTCDataChannel object with the same id as the other peer.
 } RtcDataChannelInit, *PRtcDataChannelInit;
 
 ////////////////////////////////////////////////////
@@ -1092,354 +1032,382 @@ typedef struct {
 ////////////////////////////////////////////////////
 
 /**
- * Initialize a RtcPeerConnection with the provided Configuration
- * https://www.w3.org/TR/webrtc/#constructor
+ * @brief Initialize a RtcPeerConnection with the provided Configuration
  *
- * @param - PConfiguration - IN - Configuration to initialize provided RtcPeerConnection
- * @param - PRtcPeerConnection - IN/OUT - Initialized and configured RtcPeerConnection
+ * Reference: https://www.w3.org/TR/webrtc/#constructor
  *
- * @return - STATUS code of the execution
+ * @param[in] PConfiguration Configuration to initialize provided RtcPeerConnection
+ * @param[in,out] PRtcPeerConnection Uninitialized RtcPeerConnection
+ *
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS createPeerConnection(PRtcConfiguration, PRtcPeerConnection*);
 
 /**
- * Free a RtcPeerConnection
+ * @brief Free a RtcPeerConnection
  *
- * @param - PRtcPeerConnection* - IN - RtcPeerConnection that will be freed
+ * @param[in] PRtcPeerConnection* RtcPeerConnection that is to be freed
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS freePeerConnection(PRtcPeerConnection*);
 
 /**
- * Set a callback when new Ice collects new local candidate. When IceAgent is done with collecting candidates,
+ * @brief Set a callback when new Ice collects new local candidate.
+ *
+ * NOTE: When IceAgent is done with collecting candidates,
  * RtcOnIceCandidate will be called with NULL.
  *
- * @param - PRtcPeerConnection* - IN - RtcPeerConnection struct
- * @param - UINT64 - IN - User customData that will be passed along when RtcOnIceCandidate is called
- * @param - RtcOnIceCandidate - IN - User callback when new local candidate is found
+ * @param[in] PRtcPeerConnection Initialized RtcPeerConnection
+ * @param[in] UINT64 User customData that will be passed along when RtcOnIceCandidate is called
+ * @param[in] RtcOnIceCandidate User callback when new local candidate is found
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS peerConnectionOnIceCandidate(PRtcPeerConnection, UINT64, RtcOnIceCandidate);
 
 /**
  * Set a callback for data channel
  *
- * @param - PRtcPeerConnection* - IN - RtcPeerConnection struct
- * @param - UINT64 - IN - User customData that will be passed along when RtcOnDataChannel is called
- * @param - RtcOnIceCandidate - IN - User RtcOnDataChannel callback
+ * @param[in] PRtcPeerConnection Initialized RtcPeerConnection
+ * @param[in] UINT64 User customData that will be passed along when RtcOnDataChannel is called
+ * @param[in] RtcOnDataChannel User RtcOnDataChannel callback
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS peerConnectionOnDataChannel(PRtcPeerConnection, UINT64, RtcOnDataChannel);
 
 /**
  * Set a callback for connection state change
  *
- * @param - PRtcPeerConnection* - IN - RtcPeerConnection struct
- * @param - UINT64 - IN - User customData that will be passed along when RtcOnDataChannel is called
- * @param - RtcOnIceCandidate - IN - User RtcOnConnectionStateChange callback
+ * @param[in] PRtcPeerConnection Initialized RtcPeerConnection
+ * @param[in] UINT64 User customData that will be passed along when RtcOnDataChannel is called
+ * @param[in] RtcOnIceCandidate User RtcOnConnectionStateChange callback
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS peerConnectionOnConnectionStateChange(PRtcPeerConnection, UINT64, RtcOnConnectionStateChange);
 
 /**
  * Load the sdp field of PRtcSessionDescriptionInit with latest local session description
  *
- * @param - PRtcPeerConnection* - IN - RtcPeerConnection struct
- * @param - PRtcSessionDescriptionInit - IN/OUT - PRtcSessionDescriptionInit whose sdp field will be modified.
+ * @param[in] PRtcPeerConnection Initialized RtcPeerConnection
+ * @param[in,out] PRtcSessionDescriptionInit IN/PRtcSessionDescriptionInit whose sdp field will be modified.
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS peerConnectionGetCurrentLocalDescription(PRtcPeerConnection, PRtcSessionDescriptionInit);
 
 /**
- * createOffer method populates the provided answer that contains an RFC 3264 offer
+ * @brief Populate the provided answer that contains an RFC 3264 offer
  * with the supported configurations for the session.
- * https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-createoffer
  *
- * @param - PRtcPeerConnection - IN - Initialized RtcPeerConnection
- * @param - PRtcSessionDescriptionInit - IN/OUT - answer that describes the supported configurations of the RtcPeerConnection
+ * Reference: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-createoffer
  *
- * @return - STATUS code of the execution
+ * @param[in] PRtcPeerConnection Initialized RtcPeerConnection
+ * @param[in,out] PRtcSessionDescriptionInit IN/answer that describes the supported configurations of the RtcPeerConnection
+ *
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS createOffer(PRtcPeerConnection, PRtcSessionDescriptionInit);
 
 /**
- * createAnswer method populates the provided answer that contains an RFC 3264 answer
+ * @brief Populate the provided answer that contains an RFC 3264 answer
  * with the supported configurations for the session.
- * https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-createanswer
  *
- * @param - PRtcPeerConnection - IN - Initialized RtcPeerConnection
- * @param - PRtcSessionDescriptionInit - IN/OUT - answer that describes the supported configurations of the RtcPeerConnection
+ * Reference: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-createanswer
  *
- * @return - STATUS code of the execution
+ * @param[in] PRtcPeerConnection Initialized RtcPeerConnection
+ * @param[in,out] PRtcSessionDescriptionInit IN/answer that describes the supported configurations of the RtcPeerConnection
+ *
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS createAnswer(PRtcPeerConnection, PRtcSessionDescriptionInit);
 
 
 /**
- * serializeSessionDescriptionInit creates a JSON string from RtcSessionDescriptionInit
+ * @brief Create a JSON string from RtcSessionDescriptionInit
 
- * @param - PRtcSessionDescriptionInit - IN - Source RtcSessionDescriptionInit that will become JSON string
- * @param - PCHAR - OUT - JSON string generated from PRtcSessionDescriptionInit
- * @param - PUINT32 - OUT - If PCHAR is null this is the required buffer size. If PCHAR is non-NULL this is the length of the output
+ * @param[in] PRtcSessionDescriptionInit Source RtcSessionDescriptionInit that will become JSON string
+ * @param[out] PCHAR JSON string generated from PRtcSessionDescriptionInit
+ * @param[out] PUINT32 If PCHAR is null this is the required buffer size. If PCHAR is non-NULL this is the length of the output
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS serializeSessionDescriptionInit(PRtcSessionDescriptionInit, PCHAR, PUINT32);
 
 
 /**
- * deserializeSessionDescriptionInit parses a JSON string and returns a
- * allocated PSessionDescriptionInit
-
- * @param - PCHAR - IN - JSON String of a RtcSessionDescriptionInit
- * @param - UINT32 - IN - Length of JSON String
- * @param - PRtcSessionDescriptionInit - OUT - RtcSessionDescriptionInit populated from JSON String
+ * @brief Parses a JSON string and returns an allocated PSessionDescriptionInit
  *
- * @return - STATUS code of the execution
+ * @param[in] PCHAR JSON String of a RtcSessionDescriptionInit
+ * @param[in] UINT32 Length of JSON String
+ * @param[out] PRtcSessionDescriptionInit RtcSessionDescriptionInit populated from JSON String
+ *
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS deserializeSessionDescriptionInit(PCHAR, UINT32, PRtcSessionDescriptionInit);
 
 /**
- * deserializeRtcIceCandidateInit parses a JSON string and populates a PRtcIceCandidateInit
+ * @brief Parses a JSON string and populates a PRtcIceCandidateInit
 
- * @param - PCHAR - IN - JSON String of a PRtcIceCandidateInit
- * @param - UINT32 - IN - Length of JSON String
- * @param - PRtcIceCandidateInit - OUT - PRtcIceCandidateInit populated from JSON String
+ * @param[in] PCHAR JSON String of a PRtcIceCandidateInit
+ * @param[in] UINT32 Length of JSON String
+ * @param[out] PRtcIceCandidateInit PRtcIceCandidateInit populated from JSON String
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS deserializeRtcIceCandidateInit(PCHAR, UINT32, PRtcIceCandidateInit);
 
-/*
- * setLocalDescription method instructs the RtcPeerConnection to apply
- * the supplied RtcSessionDescriptionInit as the local description.
+/**
+ * @brief Instructs the RtcPeerConnection to apply the supplied RtcSessionDescriptionInit
+ * as the local description.
  *
- * https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-setlocaldescription
+ * Reference: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-setlocaldescription
  *
- * @param - PRtcPeerConnection - IN - Initialized RtcPeerConnection
- * @param - PRtcSessionDescriptionInit - IN/OUT - SessionDescriptionInit that becomes our new local description
+ * @param[in] PRtcPeerConnection Initialized RtcPeerConnection
+ * @param [in,out]PRtcSessionDescriptionInit IN/SessionDescriptionInit that becomes our new local description
  *
- * @return - STATUS code of the execution
+ * @return - STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS setLocalDescription(PRtcPeerConnection, PRtcSessionDescriptionInit);
 
-/*
- * setRemoteDescription method instructs the RtcPeerConnection to apply
+/**
+ * @brief Instructs the RtcPeerConnection to apply
  * the supplied RtcSessionDescriptionInit as the remote description.
  *
- * https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-setremotedescription
+ * Reference: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-setremotedescription
  *
- * @param - PRtcPeerConnection - IN - Initialized RtcPeerConnection
- * @param - PRtcSessionDescriptionInit - IN/OUT - RtcSessionDescriptionInit that becomes our new remote description
+ * @param[in] PRtcPeerConnection Initialized RtcPeerConnection
+ * @param[in,out] PRtcSessionDescriptionInit IN/RtcSessionDescriptionInit that becomes our new remote description
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS setRemoteDescription(PRtcPeerConnection, PRtcSessionDescriptionInit);
 
-/*
- * addTransceiver create a new RtcRtpTransceiver and add it to the set of transceivers.
+/**
+ * @brief Create a new RtcRtpTransceiver and add it to the set of transceivers.
  *
- * https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-addtransceiver
- * @param - PRtcPeerConnection - IN - Initialized RtcPeerConnection
- * @param - PRtcMediaStreamTrack - IN - RtcMediaStreamTrack that is the codec we are sending, or NULL for RECVONLY
- * @param - PRtcRtpTransceiverInit - IN - PRtcRtpTransceiverInit that may configure our new Transceiver
- * @param - *PRtcRtpTransceiver - IN/OUT - Initialized and configured RtcRtpTransceiver
+ * Reference https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-addtransceiver
  *
- * @return - STATUS code of the execution
+ * @param[in] PRtcPeerConnection Initialized RtcPeerConnection
+ * @param[in] PRtcMediaStreamTrack Stream track information for the codec appropriate codec, or NULL for RECVONLY
+ * @param[in] PRtcRtpTransceiverInit PRtcRtpTransceiverInit that may configure our new Transceiver
+ * @param[in,out] PRtcRtpTransceiver* IN/Initialized and configured RtcRtpTransceiver
+ *
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS addTransceiver(PRtcPeerConnection, PRtcMediaStreamTrack, PRtcRtpTransceiverInit, PRtcRtpTransceiver*);
 
 /**
- * Set a callback for transceiver frame
+ * @brief Set a callback for transceiver frame
  *
- * @param - PRtcRtpTransceiver* - IN - RtcRtpTransceiver struct
- * @param - UINT64 - IN - User customData that will be passed along when RtcOnFrame is called
- * @param - RtcOnFrame - IN - User RtcOnFrame callback
+ * @param[in] PRtcRtpTransceiver Populated RtcRtpTransceiver struct
+ * @param[in] UINT64 User customData that will be passed along when RtcOnFrame is called
+ * @param[in] RtcOnFrame User RtcOnFrame callback
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS transceiverOnFrame(PRtcRtpTransceiver, UINT64, RtcOnFrame);
 
 /**
- * Set a callback for bandwidth estimation results
+ * @brief Set a callback for bandwidth estimation results
  *
- * @param - PRtcRtpTransceiver* - IN - RtcRtpTransceiver struct
- * @param - UINT64 - IN - User customData that will be passed along when RtcOnBandwidthEstimation is called
- * @param - RtcOnBandwidthEstimation - IN - User RtcOnBandwidthEstimation callback
+ * @param[in] PRtcRtpTransceiver Populated RtcRtpTransceiver struct
+ * @param[in] UINT64 User customData that will be passed along when RtcOnBandwidthEstimation is called
+ * @param[in] RtcOnBandwidthEstimation User RtcOnBandwidthEstimation callback
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS transceiverOnBandwidthEstimation(PRtcRtpTransceiver, UINT64, RtcOnBandwidthEstimation);
 
-/*
- * freeTransceiver frees the previously created transceiver object
+/**
+ * @brief Frees the previously created transceiver object
  *
- * @param - *PRtcRtpTransceiver - IN/OUT/OPT - RtcRtpTransceiver to be freed
+ * @param[in/out/opt] PRtcRtpTransceiver* IN/OUT/OPT RtcRtpTransceiver to be freed
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS freeTransceiver(PRtcRtpTransceiver*);
 
-/*
- * initKvsWebRtc initializes global state needed for all RtcPeerConnection's it must only be called once
+/**
+ * @brief Initializes global state needed for all RtcPeerConnections. It must only be called once
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS initKvsWebRtc(VOID);
 
-/*
- * deinitKvsWebRtc deinitializes global state needed for all RtcPeerConnection's it must only be called once
+/**
+ * @brief Deinitializes global state needed for all RtcPeerConnections. It must only be called once
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS deinitKvsWebRtc(VOID);
 
-/*
- * addSupportedCodec adds to the list of codecs we support receiving. The remote MUST only send codecs we declare
+/**
+ * @brief Adds to the list of codecs we support receiving.
  *
- * @param - RTC_CODEC - IN - Codec that we support receiving.
+ * NOTE: The remote MUST only send codecs we declare
  *
- * @return - STATUS code of the execution
+ * @param[in] PRtcPeerConnection Initialized RtcPeerConnection
+ * @param[in] RTC_CODEC Codec that we support receiving.
+ *
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS addSupportedCodec(PRtcPeerConnection, RTC_CODEC);
 
-/*
- * writeFrame packetizes and sends media via the configuration specified by the RtcRtpTransceiver
+/**
+ * @brief Packetizes and sends media via the configuration specified by the RtcRtpTransceiver
  *
- * @param - PRtcRtpTransceiver - IN - Configured and connected RtcRtpTransceiver to send media via
- * @param - PFrame - IN - Frame of media that will be sent
+ * @param[in] PRtcRtpTransceiver Configured and connected RtcRtpTransceiver to send media
+ * @param[in] PFrame Frame of media that will be sent
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS writeFrame(PRtcRtpTransceiver, PFrame);
 
-/*
- * addIceCandidate method provides a remote candidate to the ICE Agent. This method can also be used to
- * indicate the end of remote candidates when called with an empty string for the candidate member.
+/**
+ * @brief Provides a remote candidate to the ICE Agent.
  *
- * https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-addicecandidate
+ * This method can also be used to indicate the end of remote candidates
+ * when called with an empty string for the candidate member.
+ *
+ * Reference: https://www.w3.org/TR/webrtc/#dom-rtcpeerconnection-addicecandidate
+ *
+ * @param[in] PRtcPeerConnection Initialized RtcPeerConnection
+ * @param[in] PCHAR New remote ICE candidate to add
+ *
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 STATUS addIceCandidate(PRtcPeerConnection, PCHAR);
 
-/*
- * createDataChannel creates a new RtcDataChannel object with the given label. The RtcDataChannelInit dictionary can be
- * used to configure properties of the underlying channel such as data reliability.
+/**
+ * @brief createDataChannel creates a new RtcDataChannel object with the given label.
  *
- * https://www.w3.org/TR/webrtc/#methods-11
+ * NOTE: The RtcDataChannelInit dictionary can be used to configure properties of the underlying
+ * channel such as data reliability.
+ * NOTE: Data channel can be created only before signaling for now
+ *
+ * Reference: https://www.w3.org/TR/webrtc/#methods-11
+ *
+ * @param[in] PRtcPeerConnection Initialized RtcPeerConnection
+ * @param[in] PCHAR Data channel Name
+ * @param[in] PRtcDataChannelInit Allowed to be NULL/defines underlying channel properties
+ * @param[out] PRtcDataChannel* Created data channel with supplied channel name
+ *
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 STATUS createDataChannel(PRtcPeerConnection, PCHAR, PRtcDataChannelInit, PRtcDataChannel*);
 
 /**
- * Set a callback for data channel message
+ * @brief Set a callback for data channel message
  *
- * @param - PRtcPeerConnection* - IN - RtcPeerConnection struct
- * @param - UINT64 - IN - User customData that will be passed along when RtcOnMessage is called
- * @param - RtcOnMessage - IN - User RtcOnMessage callback
+ * @param[in] PRtcDataChannel Data channel struct created by createDataChannel()
+ * @param[in] UINT64 User customData that will be passed along when RtcOnMessage is called
+ * @param[in] RtcOnMessage User RtcOnMessage callback
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS dataChannelOnMessage(PRtcDataChannel, UINT64, RtcOnMessage);
 
 /**
- * Set a callback for data channel message
+ * @brief Set a callback for data channel open
  *
- * @param - PRtcDataChannel* - IN - RtcDataChannel struct
- * @param - UINT64 - IN - User customData that will be passed along when RtcOnOpen is called
- * @param - RtcOnOpen - IN - User RtcOnOpen callback
+ * @param[in] PRtcDataChannel Data channel struct created by createDataChannel()
+ * @param[in] UINT64 User customData that will be passed along when RtcOnOpen is called
+ * @param[in] RtcOnOpen User RtcOnOpen callback
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS dataChannelOnOpen(PRtcDataChannel, UINT64, RtcOnOpen);
 
-/*
- * dataChannelSend send data via the PRtcDataChannel
+/**
+ * @brief Send data via the PRtcDataChannel
  *
- * @param - PRtcDataChannel - IN - Configured and connected PRtcDataChannel
- * @param - BOOL - IN - Is message binary, if false will be delivered as a string
- * @param - PBYTE - IN - Data that you wish to send
- * @param - UINT32 - IN - Length of the PBYTE you wish to send
+ * Reference: https://www.w3.org/TR/webrtc/#dfn-send
  *
- * https://www.w3.org/TR/webrtc/#dfn-send
+ * @param[in] PRtcDataChannel Configured and connected PRtcDataChannel
+ * @param[in] BOOL Is message binary, if false will be delivered as a string
+ * @param[in] PBYTE Data that you wish to send
+ * @param[in] UINT32 Length of the PBYTE you wish to send
+ *
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
+ *
  */
 STATUS dataChannelSend(PRtcDataChannel, BOOL, PBYTE, UINT32);
 
-/*
- * Creates a Signaling client and returns a handle to it
+/**
+ * @brief Creates a Signaling client and returns a handle to it
  *
- * @param - PSignalingClientInfo - IN - Signaling client info
- * @param - PChannelInfo - IN - Signaling channel info to use/create a channel
- * @param - PSignalingClientCallbacks - IN - Signaling callbacks for event notifications
- * @param - PAwsCredentialProvider - IN - Credential provider for auth integration
- * @param - PSIGNALING_CLIENT_HANDLE - OUT - Returned signaling client handle
+ * @param[in] PSignalingClientInfo Signaling client info
+ * @param[in] PChannelInfo Signaling channel info to use/create a channel
+ * @param[in] PSignalingClientCallbacks Signaling callbacks for event notifications
+ * @param[in] PAwsCredentialProvider Credential provider for auth integration
+ * @param[out] PSIGNALING_CLIENT_HANDLE Returned signaling client handle
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS createSignalingClientSync(PSignalingClientInfo, PChannelInfo, PSignalingClientCallbacks, PAwsCredentialProvider, PSIGNALING_CLIENT_HANDLE);
 
-/*
- * Frees the Signaling client object
+/**
+ * @brief Frees the Signaling client object
  *
  * NOTE: The call is idempotent.
  *
- * @param - PSIGNALING_CLIENT_HANDLE - IN/OUT/OPT - Signaling client handle to free
+ * @param[in/out/opt] PSIGNALING_CLIENT_HANDLE Signaling client handle to free
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS freeSignalingClient(PSIGNALING_CLIENT_HANDLE);
 
-/*
- * Send a message through a Signaling client.
+/**
+ * @brief Send a message through a Signaling client.
  *
  * NOTE: The call will fail if the client is not in the CONNECTED state.
  * NOTE: This is a synchronous call. It will block and wait for sending the data and await for the ACK from the service.
  *
- * @param - SIGNALING_CLIENT_HANDLE - IN - Signaling client handle
- * @param - PSignalingMessage - IN - Message to send.
+ * @param[in] SIGNALING_CLIENT_HANDLE Signaling client handle
+ * @param[in] PSignalingMessage Message to send.
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS signalingClientSendMessageSync(SIGNALING_CLIENT_HANDLE, PSignalingMessage);
 
-/*
- * Gets the retrieved ICE configuration information object count
+/**
+ * @brief Gets the retrieved ICE configuration information object count
  *
  * NOTE: The call will fail if the client is not in the CONNECTED state.
  *
- * @param - SIGNALING_CLIENT_HANDLE - IN - Signaling client handle
- * @param - PUINT32 - OUT - The count of the ICE configuration information objects
+ * @param[in] SIGNALING_CLIENT_HANDLE Signaling client handle
+ * @param[out] PUINT32 The count of the ICE configuration information objects
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of the execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS signalingClientGetIceConfigInfoCount(SIGNALING_CLIENT_HANDLE, PUINT32);
 
-/*
- * Gets the ICE configuration information object given its index
+/**
+ * @brief Gets the ICE configuration information object given its index
  *
  * NOTE: The call will fail if the client is not in the CONNECTED state.
  * IMPORTANT: The returned pointer to the ICE configuration information object points to internal structures
  * and its contents should not be modified.
  *
- * @param - SIGNALING_CLIENT_HANDLE - IN - Signaling client handle
- * @param - UINT32 - INT - The index of the ICE configuration information objects to retrieve
- * @param - PIceConfigInfo* - OUT - The pointer to the ICE configuration information object
+ * @param SIGNALING_CLIENT_HANDLE
+ * @param[in] UINT32 Index of the ICE configuration information object to retrieve
+ * @param[out] PIceConfigInfo The pointer to the ICE configuration information object
  *
- * @return - STATUS code of the execution
+ * @return STATUS code of execution. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS signalingClientGetIceConfigInfo(SIGNALING_CLIENT_HANDLE, UINT32, PIceConfigInfo*);
 
-/*
- * Connects the signaling client to the socket in order to send/receive messages.
+
+/**
+ * @brief Connects the signaling client to the socket in order to send/receive messages.
  *
  * NOTE: The call will succeed only when the signaling client is in a ready state.
+ * @param SIGNALING_CLIENT_HANDLE
  *
- * @param - SIGNALING_CLIENT_HANDLE - IN - Signaling client handle
- *
- * @return - STATUS code of the execution
+ * @return STATUS function execution status. STATUS_SUCCESS on success
  */
 PUBLIC_API STATUS signalingClientConnectSync(SIGNALING_CLIENT_HANDLE);
 
